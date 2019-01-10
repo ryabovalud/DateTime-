@@ -7,12 +7,14 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.format.DateUtils;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
 import android.database.sqlite.SQLiteDatabase;
+import android.widget.Toast;
 
 
 import java.util.Calendar;
@@ -101,14 +103,30 @@ public class MainActivity extends AppCompatActivity {
 
     private void setInitialDateTime() {
 
-            currentDate.setText(DateUtils.formatDateTime(this,
-                    dateAndTime.getTimeInMillis(),
-                    DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_YEAR));
+        currentDate.setText(DateUtils.formatDateTime(this,
+                dateAndTime.getTimeInMillis(),
+                DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_YEAR));
 
-            currentTime.setText(DateUtils.formatDateTime(this,
+        if(dateAndTime.getTimeInMillis()>System.currentTimeMillis()){
+                    currentTime.setText(DateUtils.formatDateTime(this,
                     dateAndTime.getTimeInMillis(),
                     DateUtils.FORMAT_SHOW_TIME));
+        }
+
+        else {
+            Toast toast = Toast.makeText(getApplicationContext(),
+                    "Неверное время!", Toast.LENGTH_SHORT);
+            toast.setGravity(Gravity.CENTER, 0, 0);
+
+            toast.show();
+
+            currentTime.setText(DateUtils.formatDateTime(this,
+                    System.currentTimeMillis(),
+                    DateUtils.FORMAT_SHOW_TIME));
+        }
+
     }
+
 
     // установка обработчика выбора времени
     TimePickerDialog.OnTimeSetListener t=new TimePickerDialog.OnTimeSetListener() {
