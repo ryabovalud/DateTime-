@@ -107,9 +107,12 @@ public class Main2Activity extends AppCompatActivity {
         AlarmManager alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
 
-        Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.MILLISECOND, 0);
-        alarm.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), 1000, pending);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.add(Calendar.SECOND, 1);
+        long time = calendar.getTimeInMillis();
+
+        alarm.setRepeating(AlarmManager.RTC_WAKEUP, time, 1000, pending);
 
     }
 
