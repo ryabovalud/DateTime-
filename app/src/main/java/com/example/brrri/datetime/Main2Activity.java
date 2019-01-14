@@ -1,5 +1,8 @@
 package com.example.brrri.datetime;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -10,6 +13,8 @@ import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
 import android.view.View;
 
+import java.util.Calendar;
+
 
 public class Main2Activity extends AppCompatActivity {
 
@@ -18,13 +23,17 @@ public class Main2Activity extends AppCompatActivity {
     private RecyclerView.LayoutManager mLayoutManager;
     DatabaseHelper dbHelper;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
+
         // создаем объект для создания и управления версиями БД
         dbHelper = new DatabaseHelper(this);
         ShowDB();
+
+        this.triggerService();
     }
 
     @Override
@@ -66,14 +75,15 @@ public class Main2Activity extends AppCompatActivity {
                 Long date_time_fromBD = query.getLong(1);
                 String event_fromBD = query.getString(2);
 
+
                 mDataSet[i][0] = DateUtils.formatDateTime(this, date_time_fromBD,
                         DateUtils.FORMAT_SHOW_DATE);
                 mDataSet[i][1] = DateUtils.formatDateTime(this, date_time_fromBD,
                         DateUtils.FORMAT_SHOW_TIME);
                 mDataSet[i][2] = event_fromBD;
                 mDataSet[i][3] = query.getString(0);
-                i++;
 
+                i++;
             }
             while (query.moveToNext());
         }
@@ -89,6 +99,21 @@ public class Main2Activity extends AppCompatActivity {
         dbHelper.close();
         return mDataSet_return;
     }
+
+    public void triggerService() {
+
+        Intent intent = new Intent(this, Alarm.class);
+        PendingIntent pending = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        AlarmManager alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.MILLISECOND, 0);
+        alarm.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), 1000, pending);
+
+    }
+
+
 
     public void onClick(View v) {
         Intent intent = new Intent(this, MainActivity.class);

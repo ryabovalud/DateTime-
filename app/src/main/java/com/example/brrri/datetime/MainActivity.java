@@ -133,6 +133,8 @@ public class MainActivity extends AppCompatActivity {
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
             dateAndTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
             dateAndTime.set(Calendar.MINUTE, minute);
+            dateAndTime.set(Calendar.MILLISECOND, 0);
+            dateAndTime.set(Calendar.SECOND, 0);
             setInitialDateTime();
         }
     };
@@ -151,25 +153,41 @@ public class MainActivity extends AppCompatActivity {
 
     public void onClick(View view){
 
-        // подключаемся к БД
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        // подготовим данные для вставки в виде пар: наименование столбца - значение
+        if(dateAndTime.getTimeInMillis()>=System.currentTimeMillis()){
+            // подключаемся к БД
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            // подготовим данные для вставки в виде пар: наименование столбца - значение
 
-        ContentValues row1 = new ContentValues();
-        row1.put("date_time", dateAndTime.getTimeInMillis());
-        row1.put("event", Text.getText().toString());
+            ContentValues row1 = new ContentValues();
+            row1.put("date_time", dateAndTime.getTimeInMillis());
+            row1.put("event", Text.getText().toString());
 
-        if (id<0){
+            if (id<0){
 
-            db.insert(dbHelper.TABLE_NAME, null, row1);
+                db.insert(dbHelper.TABLE_NAME, null, row1);
+            }
+
+            else{
+                db.update(dbHelper.TABLE_NAME, row1, dbHelper.COLUMN_ID + "=" +message,null);
+            }
+
+            // закрываем подключение к БД
+            dbHelper.close();
+            onBackPressed();
         }
 
-        else{
-            db.update(dbHelper.TABLE_NAME, row1, dbHelper.COLUMN_ID + "=" +message,null);
+        else {
+            Toast toast = Toast.makeText(getApplicationContext(),
+                    "Неверное время!", Toast.LENGTH_SHORT);
+            toast.setGravity(Gravity.CENTER, 0, 0);
+
+            toast.show();
+
+            currentTime.setText(DateUtils.formatDateTime(this,
+                    System.currentTimeMillis(),
+                    DateUtils.FORMAT_SHOW_TIME));
         }
 
-        // закрываем подключение к БД
-        dbHelper.close();
-        onBackPressed();
+
     }
 }
